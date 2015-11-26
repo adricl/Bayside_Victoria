@@ -8,6 +8,7 @@ BEGIN {
  use HTML::TreeBuilder;
  use Database::DumpTruck;
  use Data::Dumper;
+ use HTML::TreeBuilder::XPath;
  #use LWP::Debug qw(+);
  use HTTP::Request;
  use LWP::UserAgent;
@@ -21,35 +22,29 @@ BEGIN {
  
  # Turn off output buffering
  #$| = 1;
+ my @scrapped_data;
 
  #URL FUll
  #https://ecouncil.bayside.vic.gov.au/eservice/dialog/daEnquiry.do?number=&lodgeRangeType=on&dateFrom=01%2F11%2F2015&dateTo=30%2F11%2F2015&detDateFromString=&detDateToString=&streetName=&suburb=0&unitNum=&houseNum=0&planNumber=&strataPlan=&lotNumber=&propertyName=&searchMode=A&submitButton=Search
  
 	
  my $session_url = 'https://ecouncil.bayside.vic.gov.au/eservice/dialog/daEnquiryInit.do?nodeNum=1121';
- #$session_url = 'http://www.perlmonks.org//';
  my $url = 'https://ecouncil.bayside.vic.gov.au/eservice/dialog/daEnquiry.do?number=&lodgeRangeType=on&dateFrom=22%2F11%2F2015&dateTo=26%2F11%2F2015&suburb=0&houseNum=0&searchMode=A&submitButton=Search';
 
- #$url = 'http://www.google.com/';
-# # Read out and parse a web page
+# Read out and parse a web page
  $ua->cookie_jar(HTTP::Cookies->new(file => "cookie_jar", autosave => 1));
  my $request = $ua->request(GET $session_url);
 
-# print Dumper $request->content;
- #$request = new HTTP::Request('GET' => $url);
- #print Dumper $request->content;
+ #Second Request after we get the session cookie
  $request = $ua->request(GET $url);
-# print Dumper $request->content;
  my $tb = HTML::TreeBuilder->new_from_content($request->content);
 
-# print Dumper $tb;
- # Look for <tr>s of <table id="hello">
- my @rows = $tb->look_down(
-     _tag => 'div',
-	 sub { shift->parent->attr('id') eq 'fullcontent' }
- );
+ foreach my $row ($tb->findnodes('//div[@id="fullcontent"]/div/h4[@class="non_table_headers"]'))
+ {
+	print Dumper $row;
+	system("pause");
+ }
 
- print Dumper @rows;
 # # Open a database handle
 # my $dt = Database::DumpTruck->new({dbname => 'data.sqlite', table => 'data'});
 #
@@ -59,8 +54,3 @@ BEGIN {
 #     Occupation => 'Software Developer'
 # }]);
 
-# You don't have to do things with the HTML::TreeBuilder and Database::DumpTruck libraries.
-# You can use whatever libraries you want: https://morph.io/documentation/perl
-# All that matters is that your final data is written to an SQLite database
-# called "data.sqlite" in the current working directory which has at least a table
-# called "data".
