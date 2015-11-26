@@ -1,25 +1,55 @@
 # This is a template for a Perl scraper on morph.io (https://morph.io)
 # including some code snippets below that you should find helpful
+BEGIN {
+ $ENV{HTTP_proxy}='http://melyproxyc1.oceania.cshare.net:8080';
+ $ENV{HTTPS_proxy}='http://melyproxyc1.oceania.cshare.net:8080';
+}
+ use LWP::Simple qw($ua);
+ use HTML::TreeBuilder;
+ use Database::DumpTruck;
+ use Data::Dumper;
+ #use LWP::Debug qw(+);
+ use HTTP::Request;
+ use LWP::UserAgent;
+ use HTTP::Request::Common;
+ use HTTP::Cookies;
+ use strict;
+ use warnings;
 
-# use LWP::Simple;
-# use HTML::TreeBuilder;
-# use Database::DumpTruck;
+ my $ua = LWP::UserAgent->new;
+ $ua->proxy(['http', 'ftp', 'https'], 'http://melyproxyc1.oceania.cshare.net:8080');
+ 
+ # Turn off output buffering
+ #$| = 1;
 
-# use strict;
-# use warnings;
+ #URL FUll
+ #https://ecouncil.bayside.vic.gov.au/eservice/dialog/daEnquiry.do?number=&lodgeRangeType=on&dateFrom=01%2F11%2F2015&dateTo=30%2F11%2F2015&detDateFromString=&detDateToString=&streetName=&suburb=0&unitNum=&houseNum=0&planNumber=&strataPlan=&lotNumber=&propertyName=&searchMode=A&submitButton=Search
+ 
+	
+ my $session_url = 'https://ecouncil.bayside.vic.gov.au/eservice/dialog/daEnquiryInit.do?nodeNum=1121';
+ #$session_url = 'http://www.perlmonks.org//';
+ my $url = 'https://ecouncil.bayside.vic.gov.au/eservice/dialog/daEnquiry.do?number=&lodgeRangeType=on&dateFrom=22%2F11%2F2015&dateTo=26%2F11%2F2015&suburb=0&houseNum=0&searchMode=A&submitButton=Search';
 
-# # Turn off output buffering
-# $| = 1;
-
+ #$url = 'http://www.google.com/';
 # # Read out and parse a web page
-# my $tb = HTML::TreeBuilder->new_from_content(get('http://example.com/'));
+ $ua->cookie_jar(HTTP::Cookies->new(file => "cookie_jar", autosave => 1));
+ my $request = $ua->request(GET $session_url);
 
-# # Look for <tr>s of <table id="hello">
-# my @rows = $tb->look_down(
-#     _tag => 'tr',
-#     sub { shift->parent->attr('id') eq 'hello' }
-# );
+# print Dumper $request->content;
+ #$request = new HTTP::Request('GET' => $url);
+ #print Dumper $request->content;
+ $request = $ua->request(GET $url);
+# print Dumper $request->content;
+ my $tb = HTML::TreeBuilder->new_from_content($request->content);
 
+# print Dumper $tb;
+ # Look for <tr>s of <table id="hello">
+ my @rows = $tb->look_down(
+     _tag => 'div',
+	 sub { shift->parent->attr('id') eq 'fullcontent' }
+ );
+
+ print Dumper @rows;
 # # Open a database handle
 # my $dt = Database::DumpTruck->new({dbname => 'data.sqlite', table => 'data'});
 #
