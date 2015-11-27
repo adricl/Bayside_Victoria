@@ -3,5 +3,18 @@
 # Find out more: https://morph.io/documentation/perl
 
 requires "LWP", "6.06";
+requires "LWP::Protocol::https", "6.06";
+requires "LWP::UserAgent", "6.13";
+
+
 requires "HTML::Tree", "5.03";
+requires "HTML::TreeBuilder", "5.03";
+requires "HTML::TreeBuilder::XPath;", "0.14";
+
+requires "HTTP::Request", "6.11";
+requires "HTTP::Request::Common", "6.11";
+requires "HTTP::Cookies", "6.01";
+
 requires "Database::DumpTruck", "1.2";
+
+
